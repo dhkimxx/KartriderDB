@@ -1,12 +1,12 @@
 import os
 import requests
 
-key = os.environ['_API_KEY']
-headers = {'Authorization': key}
+KEY = os.environ['_API_KEY']
+HEADERS = {'Authorization': KEY}
 
 def getMatchInfo(match_id):
   _API_URL = f'https://api.nexon.co.kr/kart/v1.0/matches/{match_id}'
-  res = requests.get(_API_URL, headers = headers)
+  res = requests.get(_API_URL, headers = HEADERS)
   res_json = res.json()
   matchId = res_json['matchId']
   matchType = res_json['matchType']
