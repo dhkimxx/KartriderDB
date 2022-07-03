@@ -1,5 +1,6 @@
 import os
 import requests
+import pandas as pd
 
 KEY = os.environ['_API_KEY']
 HEADERS = {'Authorization': KEY}
@@ -8,6 +9,10 @@ def getMatchInfo(match_id):
   _API_URL = f'https://api.nexon.co.kr/kart/v1.0/matches/{match_id}'
   res = requests.get(_API_URL, headers = HEADERS)
   res_json = res.json()
+
+  data = []
+  data_cols = ['matchId', 'matchType', 'matchResult', 'gameSpeed', 'startTime', 'endTime', 'playTime', 'channelName', 'trackId', 'teamId', 'character', 'kart', 'pet', 'flyingPet', 'partsEngine', 'partsHandle', 'partsWheel', 'partsKit', 'rankinggrade2', 'matchRank', 'matchRetired', 'matchWin', 'matchTime']
+ 
   matchId = res_json['matchId']
   matchType = res_json['matchType']
   matchResult = res_json['matchResult']
@@ -17,12 +22,8 @@ def getMatchInfo(match_id):
   playTime = res_json['playTime']
   channelName = res_json['channelName']
   trackId = res_json['trackId']
-  
-  res_json_keys = list(res_json.keys())
-  for key in res_json_keys[:-1]:
-    print(key, ': ', res_json[key])
-  
-  if 'Team' in channelName:
+ 
+  if 'Team' in channelName or 'club' in channelName:
     teams = res_json['teams']
     for team in teams:
       teamId = team['teamId']
@@ -41,13 +42,10 @@ def getMatchInfo(match_id):
         matchRetired = player['matchRetired']
         matchWin = player['matchWin']
         matchTime = player['matchTime']
+        data.append([matchId, matchType, matchResult, gameSpeed, startTime, endTime, playTime, channelName, trackId, teamId, character, kart, pet, flyingPet, partsEngine, partsHandle, partsWheel, partsKit, rankinggrade2, matchRank, matchRetired, matchWin, matchTime])
         
-        player_keys = list(player.keys())
-        print("{")
-        for key in player_keys:
-          print('\t', key, ': ', player[key])
-        print('}')
   else:
+    teamId = None
     players = res_json['players']
     for player in players:
       character = player['character']
@@ -63,11 +61,7 @@ def getMatchInfo(match_id):
       matchRetired = player['matchRetired']
       matchWin = player['matchWin']
       matchTime = player['matchTime']
-      
-      player_keys = list(player.keys())
-      print("{")
-      for key in player_keys:
-        print('\t',key, ': ', player[key])
-      print("}")
-      
-  return
+      data.append([matchId, matchType, matchResult, gameSpeed, startTime, endTime, playTime, channelName, trackId, teamId, character, kart, pet, flyingPet, partsEngine, partsHandle, partsWheel, partsKit, rankinggrade2, matchRank, matchRetired, matchWin, matchTime])
+
+  df = pd.DataFrame(data, columns = data_cols)
+  return df
